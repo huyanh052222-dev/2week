@@ -64,50 +64,141 @@ body{
 
 }
 .container-wrap-content{
+    height: 100vh;
     display: flex;
     justify-content: center;
-    padding-top: 60px;
-    .hero-wrap{
-        width: 70vh;
-        height: 80vh;
-        background-color: var(--notebook);
-        color: var(--text-1);
-        box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.337);
-        border-radius: 30px;
+    align-items: center;
+
+    .book{
+        position: relative;
+        width: 400px;
+        height: 550px;
+        transition: transform 0.5s;
+    }
+
+    .paper{
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        perspective: 1500px;
+    }
+
+    .front, .back{
+        background-color: rgb(201, 183, 170);
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        transform-origin: left;
+        transition: transform 0.5s;
+    }
+
+    .back-content{
+        /* Lat chu lai */
+        transform: rotateY(180deg); 
+    }
+
+    /* Flipped effect */
+    .flipped .front,
+    .flipped .back{
+        transform: rotateY(-180deg);
+    }
+
+    .front{
+        z-index: 1;
+        backface-visibility: hidden;
+        border-left: 3px solid rgb(111, 108, 108);
+
+    }
+    .book-cover{
+        background-color: var(--a-primary);
+    }
+    .back{
+        z-index: 0;
+    }
+
+    .front-content, .back-content{
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
         text-align: center;
-        padding-top: 85px;
-        .hero-heading-1{
-            font-weight: 700;
-            font-size: 40px;
+        align-items: center;
+        span{
+            color: var(--text-1);
         }
-        .hero-heading-2{
-            font-weight: 500;
-            font-size: 35px;
-        }
-    
-        /* Button */
-        .button-wrap{
-            margin: 0 auto;
-            margin-top: 40px;
-            display: flex;
-            flex-direction: row;
-            gap: 20px;
-            width: 77%;
-            .button-1, .button-2{
-                padding: 20px 35px;
-                text-decoration: none;
-                color: var(--text-1);
-                border-radius: 10px;
-            }
-            .button-1{
-                background-color: #ba81b2;
-                color: #18135A;
-            }
-            .button-2{
-                background-color: #e06fef;
-                color: #18135A;
-            }
-    
-        }
+    }
+
+    button{
+        margin: 30px;
+        border: none;
+        cursor: pointer;
+        background-color: transparent;
+        transition: transform 0.5s;
+    }
+
+    button:focus{
+        outline: none;
+    }
+
+    button:hover i{
+        background-color: rgb(147, 147, 147);
+    }
+
+    i{
+        font-size: 40px;
+    }
+
+    /* Stack */
+    #p1{
+        z-index: 16;
+    }
+    #p2{
+        z-index: 15;
+    }
+    #p3{
+        z-index: 14;
+    }
+    #p4{
+        z-index: 13;
+    }
+    #p5{
+        z-index: 12;
+    }
+    #p6{
+        z-index: 11;
+    }
+    #p7{
+        z-index: 10;
+    }
+    #p8{
+        z-index: 9;
+    }
+    #p9{
+        z-index: 8;
+    }
+    #p10{
+        z-index: 7;
+    }
+    #p11{
+        z-index: 6;
+    }
+    #p12{
+        z-index: 5;
+    }
+    #p13{
+        z-index: 4;
+    }
+    #p14{
+        z-index: 3;
+    }
+    #p15{
+        z-index: 2;
+    }
+    #p16{
+        z-index: 1;
     }
 }
