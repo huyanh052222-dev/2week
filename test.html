@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body{
+            margin: 0 auto;
+        }
+        .heading-wrap{
+            background-color: rgb(200, 196, 196);
+            /* display: flex;
+            justify-content: center; */
+            text-align: center;
+            padding: 30px 80px 80px 80px;
+            .heading-web{
+                font-size: 46px;
+                color: #112A46;
+            }
+        }
+        .container-wrap{
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            height: 100%;
+            /* height: 100vh; */
+            .left-side-bar{
+                display: flex;
+                flex-direction: column;
+                width: 20vh;
+                height: 100vh;
+                position: sticky;
+                top: 0;
+                gap: 20px;
+                background-color: rgb(112, 111, 110);
+                padding-top: 45px;
+                a{
+                    text-align: center;
+                    align-content: center;
+                    height: 30px;
+                    background-color: rgb(176, 181, 181);
+                }
+            }
+            .main-editable{
+                /* background-color: #ffffff;
+                padding: 30px 45px 60px 45px;
+                width: 800px;
+                margin-left: 20vh; */
+                /* overflow-y: auto; */
+                flex: 1 1 auto; /* chiếm phần còn lại */
+                max-width: 900px; /* hạn chế chiều rộng lớn */
+                background-color: #ffffff;
+                padding: 28px;
+                border-radius: 12px;
+                box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+                .editable-box{
+                    background-color: #698fbb;
+                    min-height: 720px;
+                    padding: 60px 65px 45px 65px;
+                    border-radius: 16px;
+                    color: #fff;
+                    outline: none;
+                    white-space: pre-wrap;
+                    word-break: break-word;
+                }
+            }
+            .right-side-bar{
+                width: 20%;
+            }
+
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="heading-wrap">
+        <div class="heading-web">Welcome to our Eirlys's Web</div>
+    </div>
+    <div class="container-wrap">
+        <div class="left-side-bar">
+            <a href="">Home</a>
+            <a href="">Button 1</a>
+            <a href="">Button 2</a>
+            <a href="">Button 3</a>
+        </div>
+        <div class="main-editable">
+            <div class="editable-box" contenteditable="true">Đây là vùng bạn có thể nhập...</div>
+        </div>
+        <div class="right-side-bar">
+            <a href="" class="small-setting"></a>
+        </div>
+    </div>
+</body>
+</html>

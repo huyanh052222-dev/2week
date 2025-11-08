@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Simple Editor</title>
+  <style>
+    /* Reset cơ bản */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; font-family: system-ui, Arial, sans-serif; color: #112A46; }
+
+    /* Layout chính */
+    .heading-wrap {
+      background-color: rgb(200,196,196);
+      text-align: center;
+      padding: 32px 24px 40px;
+    }
+    .heading-web {
+      font-size: 36px;
+      font-weight: 700;
+      color: #112A46;
+      margin: 0;
+    }
+
+    .container-wrap {
+      display: flex;
+      gap: 24px;
+      padding: 24px;
+      align-items: flex-start;
+      /* cho chiều cao tối thiểu bằng viewport */
+      min-height: calc(100vh - 140px); /* trừ header height xấp xỉ */
+      background: #f5f6f7;
+    }
+
+    /* Sidebar trái */
+    .left-side-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 220px; /* cố định hợp lý cho menu */
+      background-color: rgb(112,111,110);
+      padding: 24px 12px;
+      border-radius: 12px;
+      min-height: 240px;
+    }
+    .left-side-bar a {
+      display: block;
+      text-align: center;
+      padding: 10px 8px;
+      background-color: rgb(176,181,181);
+      color: #112A46;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+    .left-side-bar a:hover { opacity: 0.9; }
+
+    /* Main editor */
+    .main-editable {
+      flex: 1 1 auto; /* chiếm phần còn lại */
+      max-width: 900px; /* hạn chế chiều rộng lớn */
+      background-color: #ffffff;
+      padding: 28px;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    }
+    .editable-box {
+      background-color: #698fbb;
+      min-height: 360px;
+      padding: 28px;
+      border-radius: 16px;
+      color: #fff;
+      outline: none;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    /* placeholder cho contenteditable (kỹ thuật) */
+    .editable-box.empty:before {
+      content: attr(data-placeholder);
+      color: rgba(255,255,255,0.8);
+      pointer-events: none;
+      display: block;
+    }
+
+    /* Sidebar phải (ví dụ) */
+    .right-side-bar {
+      width: 180px;
+      min-width: 140px;
+      padding: 12px;
+    }
+
+    /* Responsive: nhỏ hơn 800px thì chuyển sang cột dọc */
+    @media (max-width: 900px) {
+      .container-wrap { flex-direction: column; min-height: auto; }
+      .left-side-bar, .right-side-bar { width: 100%; display: flex; flex-direction: row; gap: 8px; padding: 12px; overflow-x: auto; }
+      .left-side-bar a { flex: 0 0 auto; }
+      .main-editable { max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="heading-wrap">
+    <h1 class="heading-web">Welcome to our Eirlys's Web</h1>
+  </div>
+
+  <div class="container-wrap">
+    <nav class="left-side-bar">
+      <a href="#">Home</a>
+      <a href="#">Button 1</a>
+      <a href="#">Button 2</a>
+      <a href="#">Button 3</a>
+    </nav>
+
+    <main class="main-editable">
+      <div id="editor" class="editable-box empty" contenteditable="true"
+           data-placeholder="Đây là vùng bạn có thể nhập...">
+      </div>
+    </main>
+
+    <aside class="right-side-bar">
+      <!-- chỗ này để settings, user list, v.v. -->
+      <div style="background:#fff;padding:12px;border-radius:8px;box-shadow:0 4px 10px rgba(0,0,0,0.04)">
+        Small setting
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    // Simple placeholder handling cho contenteditable
+    const editor = document.getElementById('editor');
+
+    function refreshPlaceholder() {
+      if (!editor.textContent.trim()) {
+        editor.classList.add('empty');
+      } else {
+        editor.classList.remove('empty');
+      }
+    }
+
+    editor.addEventListener('input', refreshPlaceholder);
+    // init
+    refreshPlaceholder();
+
+    // Optional: lưu local auto mỗi 3s nếu nội dung thay đổi (demo)
+    let saveTimer = null;
+    let lastSaved = '';
+    function scheduleSave() {
+      if (saveTimer) clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => {
+        const html = editor.innerHTML;
+        if (html !== lastSaved) {
+          localStorage.setItem('doc:demo', html);
+          lastSaved = html;
+          console.log('Saved to localStorage');
+        }
+      }, 1500);
+    }
+    editor.addEventListener('input', scheduleSave);
+    // load saved
+    const saved = localStorage.getItem('doc:demo');
+    if (saved) {
+      editor.innerHTML = saved;
+      refreshPlaceholder();
+      lastSaved = editor.innerHTML;
+    }
+  </script>
+</body>
+</html>

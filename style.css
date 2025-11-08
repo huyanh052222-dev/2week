@@ -1,0 +1,113 @@
+:root{
+    --a-primary: #645CBB;
+    --b-accent: #A084DC;
+    --b-hover: #ebc7e670;
+    --c-background: #EBC7E6;
+    --text-1: #FFFFFF;
+    --text-2: #18135A;
+    --notebook: #6415A4;
+}
+body{
+    margin: 0 auto;
+    background-color: var(--b-accent);
+    /* display: flex;
+    justify-content: center; */
+}
+.container-sidebar{
+    display: flex;
+    justify-content: space-between;
+    width: 15%;
+    position: fixed;
+    top: 0;
+    .side-bar{
+        width: 100%;
+        height: 100vh;
+        background-color: var(--a-primary);
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+        padding-top: 40px;
+        .logo{
+            margin: 0 auto;
+            width: 60px;
+            height: 60px;
+            background-color: rgb(144, 146, 148);
+            border-radius: 50%;
+            margin-bottom: 10px;
+        }
+        .side-item{
+            height: 40px;
+            align-content: center;
+            transition: all 0.3 ease;
+            color: #FFFFFF;
+            text-decoration: none;
+        }
+        .side-item:hover{
+            background-color: var(--b-hover);
+            color: #FFFFFF;
+        }
+        .active-nav{
+            background-color: var(--c-background);
+            color: var(--text-2);
+        }
+        .side-item:hover{
+            background-color: var(--b-hover);
+            /* color: var(--text-2); */
+        }
+        .active-nav:hover{
+            background-color: var(--c-background);
+            color: var(--text-2);
+        }
+        
+    }
+
+}
+.container-wrap-content{
+    display: flex;
+    justify-content: center;
+    padding-top: 60px;
+    .hero-wrap{
+        width: 70vh;
+        height: 80vh;
+        background-color: var(--notebook);
+        color: var(--text-1);
+        box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.337);
+        border-radius: 30px;
+        text-align: center;
+        padding-top: 85px;
+        .hero-heading-1{
+            font-weight: 700;
+            font-size: 40px;
+        }
+        .hero-heading-2{
+            font-weight: 500;
+            font-size: 35px;
+        }
+    
+        /* Button */
+        .button-wrap{
+            margin: 0 auto;
+            margin-top: 40px;
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            width: 77%;
+            .button-1, .button-2{
+                padding: 20px 35px;
+                text-decoration: none;
+                color: var(--text-1);
+                border-radius: 10px;
+            }
+            .button-1{
+                background-color: #ba81b2;
+                color: #18135A;
+            }
+            .button-2{
+                background-color: #e06fef;
+                color: #18135A;
+            }
+    
+        }
+    }
+}
