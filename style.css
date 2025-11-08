@@ -6,6 +6,23 @@
     --text-1: #FFFFFF;
     --text-2: #18135A;
     --notebook: #6415A4;
+
+    --accent: #007bff; /* Màu nhấn chính */
+    --toolbar-bg: #f8f9fa;
+    --editor-bg: #ffffff;
+    --border-color: #dee2e6;
+
+    --mint:#C8F7E0;
+    --purple:#E6D8FF;
+    --blue:#D7EAFE;
+    --peach:#FFE6CC;
+    --text:#222;
+    --muted:#6b6b6b;
+    --card-w:320px;
+    --card-h:320px;
+    --gap:20px;
+    --move-up:8px;
+    --transition-time:500ms;
 }
 body{
     margin: 0 auto;
@@ -131,7 +148,15 @@ body{
             color: var(--text-1);
         }
     }
-
+    .front-cover{
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        h4{
+            margin: 0 auto;
+            color: rgb(221, 207, 126);
+        }
+    }
     button{
         margin: 30px;
         border: none;
@@ -202,3 +227,130 @@ body{
         z-index: 1;
     }
 }
+
+.wrap{
+    max-width: 900px;
+    margin: 0 auto;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    overflow: hidden;
+    background: var(--editor-bg);
+}
+
+/* --- THANH CÔNG CỤ NỔI (FLOATING TOOLBAR) --- */
+.floating-toolbar{
+    /* Vị trí cố định ở góc trên bên phải */
+    position: fixed;
+    top: 60px; /* Xuống dưới nút Hamburger một chút */
+    right: 20px;
+
+    /* Thiết kế hộp popup */
+    width: 280px;
+    display: flex;
+    flex-direction: column; /* Xếp dọc các group */
+    gap: 12px;
+    padding: 15px;
+    background: var(--toolbar-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 1000;
+
+    /* Mặc định ẩn đi */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(10px);
+    transition: opacity 0.3s, visibility 0.3s, transform 0.3s;
+}
+.floating-toolbar.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+}
+
+/* --- NÚT HAMBURGER BAR --- */
+#toggle-toolbar {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--accent);
+    color: white;
+    padding: 10px;
+    border-radius: 8px;
+    z-index: 1001;
+    border: none;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    font-size: 18px;
+    line-height: 1;
+}
+#toggle-toolbar:hover {
+    background-color: #0056b3;
+}
+
+/* Cấu trúc group trong toolbar */
+.group{
+    display: flex;
+    flex-wrap: wrap; /* Cho phép các nút xuống dòng nếu cần */
+    gap: 4px;
+    /* Đảm bảo các nhóm chức năng căn đều theo chiều ngang của popup */
+}
+button{
+    background: transparent;
+    border: 1px solid transparent;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+button:hover{ 
+    background-color: #e2e6ea; 
+}
+button.active{ 
+    background-color: var(--accent); 
+    color: white; 
+}
+select {
+    padding: 6px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    flex-grow: 1; /* Cho phép select mở rộng */
+}
+input[type="color"] {
+    width: 40px; 
+    padding: 0; 
+    border: none; 
+    border-radius: 4px;
+    height: 32px; /* Đồng nhất chiều cao với nút */
+}
+
+/* EDITOR AREA */
+.editor{
+    min-height: 400px;
+    padding: 20px;
+    outline: none; /* Loại bỏ viền focus mặc định */
+    background: var(--editor-bg);
+}
+
+
+.rate-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    .rate-wrap{
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        .rate-2{
+            background-color: blue;
+            width: 300px;
+            height: 100px;
+            margin: 0 auto;
+        }
+    }
+}
+
+

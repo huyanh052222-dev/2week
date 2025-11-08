@@ -203,3 +203,84 @@ function goPrevPage(){
         currentLocation--;
     }
 }
+
+
+const editor = document.getElementById('editor');
+  const toolbar = document.getElementById('toolbar');
+  const toggleToolbarBtn = document.getElementById('toggle-toolbar');
+
+  // --- HÀM THỰC THI LỆNH CHỈNH SỬA ---
+  function exec(cmd, val = null){
+    document.execCommand(cmd, false, val);
+    editor.focus();
+  }
+
+  // --- LOGIC BẬT/MỞ TOOLBAR ---
+  toggleToolbarBtn.addEventListener('click', () => {
+    toolbar.classList.toggle('active');
+  });
+
+  // Đóng toolbar khi click bên ngoài (trừ khi click vào chính nút toggle)
+  document.addEventListener('click', (e) => {
+    if (toolbar.classList.contains('active') && 
+        !toolbar.contains(e.target) && 
+        e.target !== toggleToolbarBtn) {
+      toolbar.classList.remove('active');
+    }
+  });
+
+
+// --- KHAI BÁO SỰ KIỆN NÚT ---
+
+// Định dạng chữ
+document.getElementById('btn-bold').addEventListener('click', ()=> exec('bold'));
+document.getElementById('btn-italic').addEventListener('click', ()=> exec('italic'));
+document.getElementById('btn-underline').addEventListener('click', ()=> exec('underline'));
+
+// Căn lề
+document.getElementById('btn-left').addEventListener('click', ()=> exec('justifyLeft'));
+document.getElementById('btn-center').addEventListener('click', ()=> exec('justifyCenter'));
+
+//   Chỉnh font family
+document.getElementById('font-family').addEventListener('change', (e)=>{
+  exec('fontName', e.target.value);
+});
+
+// Kích thước và Màu sắc
+document.getElementById('font-size').addEventListener('change', (e)=> exec('fontSize', e.target.value));
+document.getElementById('color').addEventListener('input', (e)=> exec('foreColor', e.target.value));
+
+// Liên kết
+document.getElementById('btn-link').addEventListener('click', ()=>{
+    const url = prompt('Nhập URL:');
+    if(url) exec('createLink', url);
+});
+
+// --- LOGIC ĐÁNH DẤU NÚT ACTIVE ---
+editor.addEventListener('mouseup', updateActiveStates);
+editor.addEventListener('keyup', updateActiveStates);
+editor.addEventListener('focus', updateActiveStates);
+editor.addEventListener('click', updateActiveStates); // Thêm click cho chắc chắn
+
+function updateActiveStates(){
+    // Kiểm tra trạng thái của các lệnh định dạng
+    toggleActive('btn-bold', document.queryCommandState('bold'));
+    toggleActive('btn-italic', document.queryCommandState('italic'));
+    toggleActive('btn-underline', document.queryCommandState('underline'));
+    
+    // Kiểm tra trạng thái căn lề (Cần kiểm tra từng lệnh một)
+    toggleActive('btn-left', document.queryCommandState('justifyLeft'));
+    toggleActive('btn-center', document.queryCommandState('justifyCenter'));
+    
+    // (Lưu ý: queryCommandState('createLink') có thể trả về true ngay cả khi con trỏ chỉ nằm trong thẻ <a>)
+}
+
+function toggleActive(id, on){
+    const el = document.getElementById(id);
+    if(el) {
+    if(on) el.classList.add('active'); 
+    else el.classList.remove('active');
+    }
+}
+
+
