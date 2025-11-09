@@ -1,95 +1,317 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <style>
-        body{
-            margin: 0 auto;
-        }
-        .heading-wrap{
-            background-color: rgb(200, 196, 196);
-            /* display: flex;
-            justify-content: center; */
-            text-align: center;
-            padding: 30px 80px 80px 80px;
-            .heading-web{
-                font-size: 46px;
-                color: #112A46;
-            }
-        }
-        .container-wrap{
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            height: 100%;
-            /* height: 100vh; */
-            .left-side-bar{
-                display: flex;
-                flex-direction: column;
-                width: 20vh;
-                height: 100vh;
-                position: sticky;
-                top: 0;
-                gap: 20px;
-                background-color: rgb(112, 111, 110);
-                padding-top: 45px;
-                a{
-                    text-align: center;
-                    align-content: center;
-                    height: 30px;
-                    background-color: rgb(176, 181, 181);
-                }
-            }
-            .main-editable{
-                /* background-color: #ffffff;
-                padding: 30px 45px 60px 45px;
-                width: 800px;
-                margin-left: 20vh; */
-                /* overflow-y: auto; */
-                flex: 1 1 auto; /* chiếm phần còn lại */
-                max-width: 900px; /* hạn chế chiều rộng lớn */
-                background-color: #ffffff;
-                padding: 28px;
-                border-radius: 12px;
-                box-shadow: 0 6px 18px rgba(0,0,0,0.06);
-                .editable-box{
-                    background-color: #698fbb;
-                    min-height: 720px;
-                    padding: 60px 65px 45px 65px;
-                    border-radius: 16px;
-                    color: #fff;
-                    outline: none;
-                    white-space: pre-wrap;
-                    word-break: break-word;
-                }
-            }
-            .right-side-bar{
-                width: 20%;
-            }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NoteCloud</title>
+<style>
+body { margin:0; font-family:'Nunito', sans-serif; background:#f0f0f0; display:flex; height:100vh; overflow:hidden; }
+.container-sidebar { width:200px; background:#222; color:white; display:flex; flex-direction:column; padding:20px; box-shadow:2px 0 10px rgba(0,0,0,0.2);}
+.container-sidebar .side-bar a { color:#ddd; text-decoration:none; margin:5px 0; padding:10px; display:block; border-radius:6px; transition:0.3s;}
+.container-sidebar .side-bar a.active-nav { background:#555; }
+.container-sidebar .side-bar a:hover { background:#444; transform:translateX(5px);}
+.container-wrap-content { flex:1; position:relative; display:flex; justify-content:center; align-items:center; padding-left:100px; } /* Dịch sách sang phải hơn */
 
-        }
-        
-    </style>
+/* FLIPBOOK */
+.book { width:350px; height:500px; perspective:2500px; position:relative; display:flex; justify-content:center; align-items:center;}
+.paper { width:100%; height:100%; position:absolute; transform-origin:left; transform-style:preserve-3d; transition:transform 1s ease, z-index 0.5s; border-radius:6px; }
+.front, .back { position:absolute; width:100%; height:100%; backface-visibility:hidden; padding:20px; box-sizing:border-box; overflow:auto; border-radius:6px; background:#fffaf0; }
+.back { transform:rotateY(180deg); background:#fffbf0; }
+/* Shadow chỉ ở mép ngoài */
+.paper { box-shadow: 0 10px 15px rgba(0,0,0,0.1), 0 -10px 15px rgba(0,0,0,0.1); }
+.flipped { transform:rotateY(-180deg); }
+.book-cover { background:linear-gradient(135deg,#f09,#f0c); color:white; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:24px; text-align:center; user-select:none; }
+
+/* NAV BUTTONS */
+#prev-btn, #next-btn { position:absolute; top:50%; transform:translateY(-50%); font-size:24px; padding:8px 14px; cursor:pointer; border:none; border-radius:5px; background:#222; color:white; z-index:1000; }
+#prev-btn{left:10px;} #next-btn{right:10px;}
+#prev-btn:hover, #next-btn:hover{background:#555;}
+
+/* TOOLBAR DỌC BÊN PHẢI */
+#toggle-toolbar { position:absolute; top:10px; right:50px; font-size:28px; cursor:pointer; z-index:2000; background:none; border:none; color:#222; }
+#music-toggle { position:absolute; top:10px; right:10px; font-size:24px; cursor:pointer; z-index:2000; background:none; border:none; color:#222; }
+#toolbar { position:absolute; top:50px; right:-200px; width:180px; height:calc(100% - 60px); background:rgba(255,255,255,0.95); padding:10px; border-radius:10px 0 0 10px; display:flex; flex-direction:column; gap:10px; transition:right 0.4s; z-index:1500; overflow:auto; }
+#toolbar.show { right:0; }
+
+/* TOOLBAR BUTTONS & SELECT */
+.floating-toolbar button, .floating-toolbar select, .floating-toolbar input[type=color] { cursor:pointer; padding:5px; border-radius:5px; border:none; width:100%; }
+.group { display:flex; flex-direction:column; gap:5px; }
+.content { width:100%; height:100%; outline:none; white-space:pre-wrap; word-break:break-word; font-family:'Nunito', sans-serif; font-size:16px; }
+.content img { max-width:100%; margin:5px 0; }
+
+/* Thêm vào khối <style> hiện tại */
+.floating-toolbar button[data-cmd="justifyLeft"],
+.floating-toolbar button[data-cmd="justifyCenter"],
+.floating-toolbar button[data-cmd="justifyRight"] {
+}
+
+@media (max-width: 1330px) {
+    .book { width:250px; height:400px; perspective:2500px; position:relative; display:flex; justify-content:center; align-items:center;}
+}
+
+@media (max-width: 1054px) {
+  .container-sidebar {
+    width:60px; /* thu nhỏ sidebar */
+    padding:10px 0;
+  }
+
+  .container-sidebar .side-bar a {
+    text-align:center;
+    padding:10px 0;
+    margin:5px 0;
+  }
+
+  .container-sidebar .side-bar a::after {
+    content: attr(title); /* nếu muốn tooltip hiển thị chữ khi hover */
+    display:none;
+  }
+
+  .container-sidebar .side-bar a span {
+    display:none; /* ẩn chữ */
+  }
+
+  .container-wrap-content {
+    padding-left:60px; /* tạo khoảng cách vừa với sidebar thu nhỏ */
+    padding-right:20px; 
+    justify-content:center;
+  }
+
+  .book {
+    width:250px;
+    height:400px;
+  }
+
+  #toolbar {
+    width:150px;
+    height:calc(100% - 60px);
+    padding:8px;
+    font-size:14px;
+  }
+
+  #toggle-toolbar {
+    top:5px;
+    right:10px;
+    font-size:24px;
+  }
+
+  #music-toggle {
+    top:5px;
+    right:50px;
+    font-size:22px;
+  }
+
+  #prev-btn, #next-btn {
+    font-size:20px;
+    padding:6px 10px;
+  }
+
+  .floating-toolbar button, .floating-toolbar select, .floating-toolbar input[type=color] {
+    padding:4px;
+    font-size:14px;
+  }
+
+  .content {
+    font-size:14px;
+  }
+}
+
+</style>
 </head>
 <body>
-    <div class="heading-wrap">
-        <div class="heading-web">Welcome to our Eirlys's Web</div>
+
+<div class="container-sidebar">
+  <div class="side-bar">
+    <div class="logo"></div>
+    <a href="#" class="side-item active-nav">Trang Chủ</a>
+    <a href="#">Đánh Giá</a>
+    <a href="#">Liên Lạc</a>
+    <a href="#">Thông Tin</a>
+    <button id="addPageBtn" style="margin-top:20px;background:#4caf50;color:white;padding:8px;border:none;border-radius:5px;">➕ Thêm trang</button>
+  </div>
+</div>
+
+<div class="container-wrap-content">
+  <button id="prev-btn">←</button>
+  <div class="book" id="book"></div>
+  <button id="next-btn">→</button>
+</div>
+
+<button id="toggle-toolbar">☰</button>
+<button id="music-toggle">🔊</button>
+
+<div id="toolbar" class="floating-toolbar">
+    <div class="group">
+        <button data-cmd="bold">B</button>
+        <button data-cmd="italic">I</button>
+        <button data-cmd="underline">U</button>
+        <button data-cmd="createLink">🔗 Liên kết</button>
+        <button data-cmd="insertImage">🖼️</button>
     </div>
-    <div class="container-wrap">
-        <div class="left-side-bar">
-            <a href="">Home</a>
-            <a href="">Button 1</a>
-            <a href="">Button 2</a>
-            <a href="">Button 3</a>
-        </div>
-        <div class="main-editable">
-            <div class="editable-box" contenteditable="true">Đây là vùng bạn có thể nhập...</div>
-        </div>
-        <div class="right-side-bar">
-            <a href="" class="small-setting"></a>
-        </div>
+    <div class="group">
+        <button data-cmd="justifyLeft">Trái</button>
+        <button data-cmd="justifyCenter">Giữa</button>
+        <button data-cmd="justifyRight">Phải</button>
+        <button data-cmd="justifyFull">Đủ</button>
     </div>
+    <div class="group">
+        <select id="font-family">
+            <option value="Nunito, sans-serif">Nunito</option>
+            <option value="Arial, sans-serif">Arial</option>
+            <option value="Georgia, serif">Georgia</option>
+            <option value="Times New Roman, serif">Times New Roman</option>
+            <option value="Courier New, monospace">Courier</option>
+        </select>
+        <select id="font-size">
+            <option value="14px">14</option>
+            <option value="16px" selected>16</option>
+            <option value="18px">18</option>
+            <option value="20px">20</option>
+            <option value="24px">24</option>
+        </select>
+        <input type="color" id="color" value="#333333">
+    </div>
+</div>
+
+<audio id="bgMusic" loop autoplay>
+  <source src="có hẹn với thanh xuân - MONSTAR _ official music video.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+const book=document.getElementById('book');
+const toolbar=document.getElementById('toolbar');
+const toggleToolbar=document.getElementById('toggle-toolbar');
+const musicToggle=document.getElementById('music-toggle');
+const addPageBtn=document.getElementById('addPageBtn');
+const prevBtn=document.getElementById('prev-btn');
+const nextBtn=document.getElementById('next-btn');
+const bgMusic=document.getElementById('bgMusic');
+
+let pages=[],currentPage=0;
+
+// Bìa đầu
+function createCover(text){
+  const page=document.createElement('div');
+  page.className='paper';
+  page.innerHTML=`<div class="front book-cover">${text}</div><div class="back"></div>`;
+  page.style.zIndex=100;
+  book.appendChild(page);
+  pages.push(page);
+}
+
+// Tạo trang mới
+function createPage(frontContent='',backContent=''){
+  const page=document.createElement('div');
+  page.className='paper';
+  page.innerHTML=`<div class="front content" contenteditable="true">${frontContent}</div>
+                  <div class="back content" contenteditable="true">${backContent}</div>`;
+  page.style.zIndex=100-pages.length;
+  book.appendChild(page);
+  pages.push(page);
+  enableDragDrop(page);
+  loadContent(page);
+  updatePages();
+}
+
+// Kéo thả ảnh
+function enableDragDrop(page){
+  page.querySelectorAll('.content').forEach(div=>{
+    div.addEventListener('dragover',e=>e.preventDefault());
+    div.addEventListener('drop',e=>{
+      e.preventDefault();
+      const files=e.dataTransfer.files;
+      for(let file of files){
+        if(file.type.startsWith('image/')){
+          const reader=new FileReader();
+          reader.onload=function(ev){
+            const img=document.createElement('img');
+            img.src=ev.target.result;
+            const sel=window.getSelection();
+            if(sel.rangeCount){sel.getRangeAt(0).insertNode(img); sel.collapseToEnd();}
+            else div.appendChild(img);
+          }
+          reader.readAsDataURL(file);
+        }
+      }
+      saveContent();
+    });
+    div.addEventListener('input',saveContent);
+  });
+}
+
+// Lưu & load nội dung
+function saveContent(){
+  const data=pages.map(p=>{
+    const f=p.querySelector('.front').innerHTML;
+    const b=p.querySelector('.back').innerHTML;
+    return {f,b};
+  });
+  localStorage.setItem('flipbookData',JSON.stringify(data));
+}
+function loadContent(page){
+  const data=JSON.parse(localStorage.getItem('flipbookData')||'[]');
+  const i=pages.indexOf(page);
+  if(data[i]){
+    page.querySelector('.front').innerHTML=data[i].f;
+    page.querySelector('.back').innerHTML=data[i].b;
+  }
+}
+
+// Cập nhật z-index & flipped
+function updatePages(){
+  pages.forEach((p,i)=>{
+    if(i<currentPage){p.classList.add('flipped'); p.style.zIndex=i;}
+    else{p.classList.remove('flipped'); p.style.zIndex=pages.length-i;}
+  });
+  saveContent();
+}
+
+// Toolbar
+toolbar.querySelectorAll('button').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const cmd=btn.dataset.cmd;
+    if(cmd==='createLink'){
+      const url=prompt("Nhập URL:");
+      if(url) document.execCommand(cmd,false,url);
+    } else if(cmd==='insertImage'){
+      const url=prompt("Nhập URL ảnh:");
+      if(url) document.execCommand(cmd,false,url);
+    } else document.execCommand(cmd,false,null);
+  });
+});
+document.getElementById('font-family').addEventListener('change',e=>document.execCommand('fontName',false,e.target.value));
+document.getElementById('font-size').addEventListener('change',e=>{
+  const size=e.target.value;
+  document.execCommand('fontSize',false,'7');
+  const sel=window.getSelection();
+  if(sel.rangeCount){
+    const node=sel.anchorNode.parentNode;
+    if(node.tagName==='FONT'){node.removeAttribute('size'); node.style.fontSize=size;}
+  }
+});
+document.getElementById('color').addEventListener('change',e=>document.execCommand('foreColor',false,e.target.value));
+
+
+
+// Toggle toolbar
+toggleToolbar.addEventListener('click',()=>toolbar.classList.toggle('show'));
+
+// Toggle music icon + audio
+musicToggle.addEventListener('click',()=>{
+  if(bgMusic.paused){bgMusic.play(); musicToggle.textContent='🔊';}
+  else{bgMusic.pause(); musicToggle.textContent='🔇';}
+});
+
+// Prev/Next
+prevBtn.addEventListener('click',()=>{if(currentPage>0) currentPage--; updatePages();});
+nextBtn.addEventListener('click',()=>{if(currentPage<pages.length-1) currentPage++; updatePages();});
+
+// Thêm trang
+addPageBtn.addEventListener('click',()=>createPage());
+
+// Khởi tạo
+createCover("💌 NoteCloud - Lưu bút thanh xuân 💌");
+for(let i=0;i<5;i++) createPage();
+updatePages();
+</script>
 </body>
 </html>
