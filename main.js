@@ -133,3 +133,6 @@ addPageBtn.addEventListener('click',()=>createPage());
 createCover("💌 NoteCloud - Lưu bút thanh xuân 💌");
 for(let i=0;i<5;i++) createPage();
 updatePages();
+
+
+// Rate side by Trinh Chicken

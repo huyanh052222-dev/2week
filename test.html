@@ -1,317 +1,785 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NoteCloud</title>
-<style>
-body { margin:0; font-family:'Nunito', sans-serif; background:#f0f0f0; display:flex; height:100vh; overflow:hidden; }
-.container-sidebar { width:200px; background:#222; color:white; display:flex; flex-direction:column; padding:20px; box-shadow:2px 0 10px rgba(0,0,0,0.2);}
-.container-sidebar .side-bar a { color:#ddd; text-decoration:none; margin:5px 0; padding:10px; display:block; border-radius:6px; transition:0.3s;}
-.container-sidebar .side-bar a.active-nav { background:#555; }
-.container-sidebar .side-bar a:hover { background:#444; transform:translateX(5px);}
-.container-wrap-content { flex:1; position:relative; display:flex; justify-content:center; align-items:center; padding-left:100px; } /* Dịch sách sang phải hơn */
-
-/* FLIPBOOK */
-.book { width:350px; height:500px; perspective:2500px; position:relative; display:flex; justify-content:center; align-items:center;}
-.paper { width:100%; height:100%; position:absolute; transform-origin:left; transform-style:preserve-3d; transition:transform 1s ease, z-index 0.5s; border-radius:6px; }
-.front, .back { position:absolute; width:100%; height:100%; backface-visibility:hidden; padding:20px; box-sizing:border-box; overflow:auto; border-radius:6px; background:#fffaf0; }
-.back { transform:rotateY(180deg); background:#fffbf0; }
-/* Shadow chỉ ở mép ngoài */
-.paper { box-shadow: 0 10px 15px rgba(0,0,0,0.1), 0 -10px 15px rgba(0,0,0,0.1); }
-.flipped { transform:rotateY(-180deg); }
-.book-cover { background:linear-gradient(135deg,#f09,#f0c); color:white; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:24px; text-align:center; user-select:none; }
-
-/* NAV BUTTONS */
-#prev-btn, #next-btn { position:absolute; top:50%; transform:translateY(-50%); font-size:24px; padding:8px 14px; cursor:pointer; border:none; border-radius:5px; background:#222; color:white; z-index:1000; }
-#prev-btn{left:10px;} #next-btn{right:10px;}
-#prev-btn:hover, #next-btn:hover{background:#555;}
-
-/* TOOLBAR DỌC BÊN PHẢI */
-#toggle-toolbar { position:absolute; top:10px; right:50px; font-size:28px; cursor:pointer; z-index:2000; background:none; border:none; color:#222; }
-#music-toggle { position:absolute; top:10px; right:10px; font-size:24px; cursor:pointer; z-index:2000; background:none; border:none; color:#222; }
-#toolbar { position:absolute; top:50px; right:-200px; width:180px; height:calc(100% - 60px); background:rgba(255,255,255,0.95); padding:10px; border-radius:10px 0 0 10px; display:flex; flex-direction:column; gap:10px; transition:right 0.4s; z-index:1500; overflow:auto; }
-#toolbar.show { right:0; }
-
-/* TOOLBAR BUTTONS & SELECT */
-.floating-toolbar button, .floating-toolbar select, .floating-toolbar input[type=color] { cursor:pointer; padding:5px; border-radius:5px; border:none; width:100%; }
-.group { display:flex; flex-direction:column; gap:5px; }
-.content { width:100%; height:100%; outline:none; white-space:pre-wrap; word-break:break-word; font-family:'Nunito', sans-serif; font-size:16px; }
-.content img { max-width:100%; margin:5px 0; }
-
-/* Thêm vào khối <style> hiện tại */
-.floating-toolbar button[data-cmd="justifyLeft"],
-.floating-toolbar button[data-cmd="justifyCenter"],
-.floating-toolbar button[data-cmd="justifyRight"] {
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Note Cloud</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pacifico&family=Inter:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="style.css">
+    <script src="main.js" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+    --purple-bg: #8c7ae6; 
+    --dark-purple-sidebar: #523f9b; 
+    --cover-purple: #523f9b; 
+    --paper-color: #f7f3e8; 
+    --red-block: #b36363; 
+    --blue-block: #749fa3; 
+    --text-color: #2c2c2c;
+    --handwriting-font: 'Pacifico', cursive; 
+    --main-font: 'Inter', sans-serif; 
+    --shadow-soft: 0 10px 40px rgba(0, 0, 0, 0.2); 
 }
 
-@media (max-width: 1330px) {
-    .book { width:250px; height:400px; perspective:2500px; position:relative; display:flex; justify-content:center; align-items:center;}
+body {
+    margin: 0;
+    font-family: var(--main-font);
+    background: var(--purple-bg);
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+    color: var(--text-color);
 }
 
-@media (max-width: 1054px) {
-  .container-sidebar {
-    width:60px; /* thu nhỏ sidebar */
-    padding:10px 0;
-  }
-
-  .container-sidebar .side-bar a {
-    text-align:center;
-    padding:10px 0;
-    margin:5px 0;
-  }
-
-  .container-sidebar .side-bar a::after {
-    content: attr(title); /* nếu muốn tooltip hiển thị chữ khi hover */
-    display:none;
-  }
-
-  .container-sidebar .side-bar a span {
-    display:none; /* ẩn chữ */
-  }
-
-  .container-wrap-content {
-    padding-left:60px; /* tạo khoảng cách vừa với sidebar thu nhỏ */
-    padding-right:20px; 
-    justify-content:center;
-  }
-
-  .book {
-    width:250px;
-    height:400px;
-  }
-
-  #toolbar {
-    width:150px;
-    height:calc(100% - 60px);
-    padding:8px;
-    font-size:14px;
-  }
-
-  #toggle-toolbar {
-    top:5px;
-    right:10px;
-    font-size:24px;
-  }
-
-  #music-toggle {
-    top:5px;
-    right:50px;
-    font-size:22px;
-  }
-
-  #prev-btn, #next-btn {
-    font-size:20px;
-    padding:6px 10px;
-  }
-
-  .floating-toolbar button, .floating-toolbar select, .floating-toolbar input[type=color] {
-    padding:4px;
-    font-size:14px;
-  }
-
-  .content {
-    font-size:14px;
-  }
+.container-sidebar {
+    width: 250px; 
+    background: var(--dark-purple-sidebar);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 0;
+    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.3);
+    z-index: 100;
+}
+.side-bar {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 0 20px;
+}
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 24px;
+    font-weight: 700;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    flex-wrap: wrap;
+}
+.eirlys-logo {
+    font-family: var(--handwriting-font);
+    font-size: 32px;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    color: var(--dark-purple-sidebar);
+    font-weight: 400;
+}
+.link-integrations {
+    width: 100%;
+    font-size: 14px;
+    font-weight: 400;
+    opacity: 0.7;
+    margin-top: 5px;
+    margin-left: 50px;
+}
+.main-menu {
+    flex-grow: 1; 
+}
+.bottom-menu {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 20px;
+}
+.side-bar a {
+    color: white;
+    text-decoration: none;
+    padding: 12px 15px;
+    margin: 4px 0;
+    display: flex; 
+    align-items: center;
+    gap: 10px;
+    border-radius: 8px;
+    transition: background 0.2s, transform 0.2s;
+    font-weight: 500;
+}
+.side-bar a i {
+    width: 20px;
+    text-align: center;
+}
+.side-bar a.active-nav {
+    background: rgba(255, 255, 255, 0.15);
+    font-weight: 600;
+}
+.side-bar a:hover {
+    background: rgba(255, 255, 255, 0.1);
 }
 
-</style>
+.container-wrap-content {
+    flex: 1;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.book {
+    width: 900px; 
+    height: 90vh; 
+    max-height: 850px; 
+    perspective: 2500px;
+    position: relative;
+    display: flex;
+    justify-content: flex-start; 
+    align-items: center;
+    gap: 0px; 
+}
+
+.paper {
+    width: 450px; 
+    height: 100%;
+    position: absolute;
+    transform-origin: left;
+    transform-style: preserve-3d;
+    transition: transform 1s cubic-bezier(0.25, 0.46, 0.45, 0.94), z-index 0.5s;
+    border-radius: 12px; 
+    box-shadow: var(--shadow-soft); 
+}
+
+.flipped {
+    transform: rotateY(-180deg);
+}
+
+.front,
+.back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    padding: 30px;
+    box-sizing: border-box;
+    overflow: hidden; 
+    border-radius: 12px;
+    background: var(--paper-color); 
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+}
+
+.back {
+    transform: rotateY(180deg);
+    background: var(--paper-color);
+}
+.book-cover {
+    background: var(--cover-purple); 
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 28px;
+    text-align: center;
+    user-select: none;
+    gap: 30px;
+}
+.cover-title-main {
+    font-family: var(--handwriting-font);
+    font-size: 60px; 
+    margin-bottom: -10px;
+}
+.cover-title-sub {
+    font-size: 20px;
+    font-weight: 400;
+}
+.cover-image-placeholder {
+    width: 180px;
+    height: 120px;
+    background: white;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--handwriting-font);
+    font-size: 32px;
+    color: var(--text-color);
+}
+.cover-start-btn {
+    padding: 12px 30px;
+    background: white;
+    color: var(--cover-purple);
+    border: none;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 18px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+}
+.cover-start-btn:hover {
+    transform: translateY(-2px);
+}
+.layout-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.layout-front-1 .block-top {height: 15%; background: var(--red-block); border-radius: 8px;}
+.layout-front-1 .block-main {height: 80%; background: var(--red-block); border-radius: 8px;}
+.layout-back-1 {display: grid; grid-template-rows: 40% 55%; gap: 15px;}
+.layout-back-1 .block-top-group {display: grid; grid-template-columns: 40% 55%; gap: 15px;}
+.layout-back-1 .block-top-group .block-left {background: var(--red-block); border-radius: 8px;}
+.layout-back-1 .block-top-group .block-right {background: var(--blue-block); border-radius: 8px;}
+.layout-back-1 .block-bottom {background: var(--red-block); border-radius: 8px;}
+.layout-front-2 {display: grid; grid-template-rows: 15% 30% 25% 20%; gap: 15px;}
+.layout-front-2 .block-top {background: var(--red-block); border-radius: 8px;}
+.layout-front-2 .block-mid-group {display: grid; grid-template-columns: 40% 55%; gap: 15px;}
+.layout-front-2 .block-mid-group .block-mid-left {background: var(--blue-block); border-radius: 8px;}
+.layout-front-2 .block-mid-group .block-mid-right {background: var(--red-block); border-radius: 8px;}
+.layout-front-2 .block-large-mid {background: var(--red-block); border-radius: 8px;}
+.layout-front-2 .block-bottom {background: var(--blue-block); border-radius: 8px;}
+.layout-back-2 {display: grid; grid-template-rows: 40% 55%; gap: 15px;}
+.layout-back-2 .block-top-group {display: grid; grid-template-columns: 40% 55%; gap: 15px;}
+.layout-back-2 .block-top-group .block-left {background: var(--red-block); border-radius: 8px;}
+.layout-back-2 .block-top-group .block-right {background: var(--blue-block); border-radius: 8px;}
+.layout-back-2 .block-bottom {background: var(--red-block); border-radius: 8px;}
+.footer-dots {
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+}
+.dot {width: 8px; height: 8px; background: #ccc; border-radius: 50%;}
+.dot.active {background: #777;}
+
+
+#prev-page-btn,
+#next-page-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+    padding: 0;
+    cursor: pointer;
+    border: none;
+    border-radius: 50%;
+    background: #fff; 
+    color: var(--text-color);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.nav-btn.left-btn {
+    left: calc(250px + 50px); 
+} 
+.nav-btn.right-btn {
+    right: 50px; 
+}
+
+#prev-page-btn:hover,
+#next-page-btn:hover {background: #eee;}
+
+
+#toggle-toolbar-menu { 
+    position: fixed; 
+    top: 20px;
+    right: 20px;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 2000;
+    width: 40px;
+    height: 40px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+#floating-menu {
+    position: fixed;
+    top: 70px; 
+    right: 20px;
+    width: 250px;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    z-index: 1999;
+    display: none; 
+    flex-direction: column;
+    gap: 15px;
+    font-size: 16px;
+}
+
+#floating-menu.show {
+    display: flex;
+}
+.menu-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+.menu-group:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.menu-group.style-buttons button {
+    width: 30px;
+    height: 30px;
+    font-size: 18px;
+    font-weight: 700;
+    background: #f0f0f0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.menu-group.select-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 10px;
+}
+
+.menu-group select {
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    font-family: var(--main-font);
+}
+
+.menu-group.color-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.menu-group input[type="color"] {
+    width: 40px;
+    height: 30px;
+    padding: 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.menu-group.align-buttons button {
+    flex: 1;
+    background: #f0f0f0;
+    border: none;
+    padding: 8px 0;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.menu-group.align-buttons button.active-align {
+    background: #007bff;
+    color: white;
+}
+
+.menu-group.action-buttons {
+    flex-direction: column;
+    gap: 5px;
+}
+.menu-group.action-buttons button {
+    background: #e9ecef;
+    border: none;
+    padding: 10px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.menu-group.action-buttons .add-page-button {
+    background: var(--purple-bg);
+    color: white;
+}
+
+/* Thêm styling cho ảnh được chèn (tùy chọn) */
+.paper img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 6px;
+    margin: 10px 0;
+}
+    </style>
 </head>
 <body>
+    <div class="container-sidebar">
+        <div class="side-bar">
+            <div class="sidebar-header">
+                <div class="eirlys-logo">Eirlys</div>
+                NoteCloud
+                <div class="link-integrations">Link Integrations 🦊🔥</div>
+            </div>
+            
+            <div class="main-menu">
+                <a href="index.html" class="side-item active-nav" title="Trang Chủ">
+                    <i class="fas fa-home"></i> Trang Chủ
+                </a>
+                <a href="#" class="side-item" title="Đánh Giá">
+                    <i class="fas fa-file-invoice"></i> Đánh giá
+                </a>
+                <a href="#" class="side-item" title="Cấu chuyện">
+                    <i class="fas fa-book"></i> Câu chuyện
+                </a>
+                <a href="#" class="side-item" id="add-page-sidebar-btn" title="Thêm trang">
+                    <i class="fas fa-plus"></i> Thêm trang 
+                </a>
+            </div>
 
-<div class="container-sidebar">
-  <div class="side-bar">
-    <div class="logo"></div>
-    <a href="#" class="side-item active-nav">Trang Chủ</a>
-    <a href="#">Đánh Giá</a>
-    <a href="#">Liên Lạc</a>
-    <a href="#">Thông Tin</a>
-    <button id="addPageBtn" style="margin-top:20px;background:#4caf50;color:white;padding:8px;border:none;border-radius:5px;">➕ Thêm trang</button>
-  </div>
-</div>
+            <div class="bottom-menu">
+                <a href="#" class="side-item" title="Công cụ">
+                    <i class="fas fa-tools"></i> Công cụ
+                </a>
+                <a href="#" class="side-item" title="Trợ giúp">
+                    <i class="fas fa-question-circle"></i> Trợ giúp
+                </a>
+            </div>
+        </div>
+    </div>
 
 <div class="container-wrap-content">
-  <button id="prev-btn">←</button>
-  <div class="book" id="book"></div>
-  <button id="next-btn">→</button>
+    <button id="prev-page-btn" class="nav-btn left-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="book" id="book"></div>
+    <button id="next-page-btn" class="nav-btn right-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
 </div>
 
-<button id="toggle-toolbar">☰</button>
-<button id="music-toggle">🔊</button>
+<button id="toggle-toolbar-menu">
+    <i class="fas fa-bars"></i>
+</button>
 
-<div id="toolbar" class="floating-toolbar">
-    <div class="group">
+<div id="floating-menu">
+    <div class="menu-group style-buttons">
         <button data-cmd="bold">B</button>
         <button data-cmd="italic">I</button>
         <button data-cmd="underline">U</button>
-        <button data-cmd="createLink">🔗 Liên kết</button>
-        <button data-cmd="insertImage">🖼️</button>
     </div>
-    <div class="group">
-        <button data-cmd="justifyLeft">Trái</button>
-        <button data-cmd="justifyCenter">Giữa</button>
-        <button data-cmd="justifyRight">Phải</button>
-        <button data-cmd="justifyFull">Đủ</button>
-    </div>
-    <div class="group">
+    
+    <div class="menu-group select-row">
         <select id="font-family">
+            <option value="Inter, sans-serif">Inter</option>
             <option value="Nunito, sans-serif">Nunito</option>
             <option value="Arial, sans-serif">Arial</option>
-            <option value="Georgia, serif">Georgia</option>
-            <option value="Times New Roman, serif">Times New Roman</option>
-            <option value="Courier New, monospace">Courier</option>
+            <option value="Pacifico, cursive">Handwriting</option>
         </select>
         <select id="font-size">
-            <option value="14px">14</option>
-            <option value="16px" selected>16</option>
-            <option value="18px">18</option>
-            <option value="20px">20</option>
-            <option value="24px">24</option>
+            <option value="16px">Normal</option>
+            <option value="14px">Small</option>
+            <option value="18px">Medium</option>
+            <option value="24px">Large</option>
         </select>
-        <input type="color" id="color" value="#333333">
+    </div>
+    
+    <div class="menu-group color-row">
+        <label for="color">Màu chữ:</label>
+        <input type="color" id="color" value="#2c2c2c">
+    </div>
+
+    <div class="menu-group align-buttons">
+        <button data-cmd="justifyLeft" class="align-btn active-align">Căn Trái</button>
+        <button data-cmd="justifyCenter" class="align-btn">Căn Giữa</button>
+        <button data-cmd="justifyRight" class="align-btn">Căn Phải</button>
+    </div>
+
+    <div class="menu-group action-buttons">
+        <button id="insert-image-btn" class="action-btn link-button">
+            <i class="fas fa-image"></i> Thêm ảnh
+        </button>
+        <input type="file" id="image-upload-input" accept="image/*" style="display: none;">
+        
+        <button data-cmd="createLink" class="action-btn link-button">🔗 Thêm Liên kết</button>
+        <button id="add-page-panel-btn" class="action-btn add-page-button">➕ Thêm trang mới</button>
     </div>
 </div>
 
 <audio id="bgMusic" loop autoplay>
-  <source src="có hẹn với thanh xuân - MONSTAR _ official music video.mp3" type="audio/mpeg">
+    <source src="có hẹn với thanh xuân - MONSTAR _ official music video.mp3" type="audio/mpeg">
 </audio>
-
 <script>
-const book=document.getElementById('book');
-const toolbar=document.getElementById('toolbar');
-const toggleToolbar=document.getElementById('toggle-toolbar');
-const musicToggle=document.getElementById('music-toggle');
-const addPageBtn=document.getElementById('addPageBtn');
-const prevBtn=document.getElementById('prev-btn');
-const nextBtn=document.getElementById('next-btn');
-const bgMusic=document.getElementById('bgMusic');
+    const book = document.getElementById('book');
+const prevBtn = document.getElementById('prev-page-btn');
+const nextBtn = document.getElementById('next-page-btn');
+const addPageSidebarBtn = document.getElementById('add-page-sidebar-btn');
 
-let pages=[],currentPage=0;
+const floatingMenu = document.getElementById('floating-menu');
+const toggleToolbarMenu = document.getElementById('toggle-toolbar-menu');
+const addPagePanelBtn = document.getElementById('add-page-panel-btn');
 
-// Bìa đầu
-function createCover(text){
-  const page=document.createElement('div');
-  page.className='paper';
-  page.innerHTML=`<div class="front book-cover">${text}</div><div class="back"></div>`;
-  page.style.zIndex=100;
-  book.appendChild(page);
-  pages.push(page);
+const insertImageBtn = document.getElementById('insert-image-btn');
+const imageUploadInput = document.getElementById('image-upload-input');
+
+let pages = [], currentPage = 0;
+let savedRange = null;
+
+const Layouts = {
+    COVER: `
+        <div class="front book-cover">
+            <div class="cover-title-main">Eirlys</div>
+            <div class="cover-title-sub">Nơi lưu giữ kỉ niệm</div>
+            <div class="cover-image-placeholder">Ảnh</div>
+            <button class="cover-start-btn" id="start-btn">Bắt đầu</button>
+        </div>
+        <div class="back"></div>
+    `,
+    
+    PAGE_1_LAYOUT: `
+        <div class="front layout-container layout-front-1">
+            <div class="block-top"></div>
+            <div class="block-main">Frame 41</div>
+            <div class="footer-dots"><div class="dot active"></div><div class="dot"></div></div>
+        </div>
+        <div class="back layout-container layout-back-1">
+            <div class="block-top-group">
+                <div class="block-left"></div>
+                <div class="block-right"></div>
+            </div>
+            <div class="block-bottom"></div>
+            <div class="footer-dots"><div class="dot"></div><div class="dot active"></div></div>
+        </div>
+    `,
+
+    PAGE_2_LAYOUT: `
+        <div class="front layout-container layout-front-2">
+            <div class="block-top"></div>
+            <div class="block-mid-group">
+                <div class="block-mid-left"></div>
+                <div class="block-mid-right"></div>
+            </div>
+            <div class="block-large-mid"></div>
+            <div class="block-bottom"></div>
+            <div class="footer-dots"><div class="dot active"></div><div class="dot"></div></div>
+        </div>
+        <div class="back layout-container layout-back-2">
+            <div class="block-top-group">
+                <div class="block-left"></div>
+                <div class="block-right"></div>
+            </div>
+            <div class="block-bottom">Frame 41</div>
+            <div class="footer-dots"><div class="dot"></div><div class="dot active"></div></div>
+        </div>
+    `,
+    
+    PAGE_BLANK: `
+        <div class="front"></div>
+        <div class="back"></div>
+    `
+};
+
+
+function createPage(contentTemplate, isEditable = true) {
+    const page = document.createElement('div');
+    page.className = 'paper';
+    page.innerHTML = contentTemplate;
+    page.style.zIndex = 100 - pages.length;
+    book.appendChild(page);
+    pages.push(page);
+    
+    if (isEditable) {
+        page.querySelectorAll('.front, .back').forEach(el => {
+            el.setAttribute('contenteditable', 'true');
+            el.addEventListener('mouseup', saveSelection);
+            el.addEventListener('keyup', saveSelection);
+        });
+    }
+    return page;
 }
 
-// Tạo trang mới
-function createPage(frontContent='',backContent=''){
-  const page=document.createElement('div');
-  page.className='paper';
-  page.innerHTML=`<div class="front content" contenteditable="true">${frontContent}</div>
-                  <div class="back content" contenteditable="true">${backContent}</div>`;
-  page.style.zIndex=100-pages.length;
-  book.appendChild(page);
-  pages.push(page);
-  enableDragDrop(page);
-  loadContent(page);
-  updatePages();
-}
-
-// Kéo thả ảnh
-function enableDragDrop(page){
-  page.querySelectorAll('.content').forEach(div=>{
-    div.addEventListener('dragover',e=>e.preventDefault());
-    div.addEventListener('drop',e=>{
-      e.preventDefault();
-      const files=e.dataTransfer.files;
-      for(let file of files){
-        if(file.type.startsWith('image/')){
-          const reader=new FileReader();
-          reader.onload=function(ev){
-            const img=document.createElement('img');
-            img.src=ev.target.result;
-            const sel=window.getSelection();
-            if(sel.rangeCount){sel.getRangeAt(0).insertNode(img); sel.collapseToEnd();}
-            else div.appendChild(img);
-          }
-          reader.readAsDataURL(file);
+function saveSelection() {
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        const container = range.commonAncestorContainer.closest('[contenteditable="true"]');
+        if (container) {
+            savedRange = range;
         }
-      }
-      saveContent();
+    }
+}
+
+function restoreSelection() {
+    if (savedRange) {
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(savedRange);
+    }
+}
+
+function addNewPage() {
+    const lastPage = pages.pop();
+    if (lastPage) {
+        book.removeChild(lastPage);
+    }
+    
+    createPage(Layouts.PAGE_BLANK, true);
+
+    createPage(Layouts.PAGE_BLANK, false); 
+    
+    currentPage = pages.length - 2; 
+    updatePages();
+}
+
+function updatePages() {
+    pages.forEach((p, i) => {
+        if (i < currentPage) {
+            p.classList.add('flipped');
+            p.style.zIndex = i; 
+        } else {
+            p.classList.remove('flipped');
+            p.style.zIndex = pages.length - i; 
+        }
     });
-    div.addEventListener('input',saveContent);
-  });
+
+    prevBtn.disabled = currentPage === 0;
+    nextBtn.disabled = currentPage === pages.length - 1;
 }
 
-// Lưu & load nội dung
-function saveContent(){
-  const data=pages.map(p=>{
-    const f=p.querySelector('.front').innerHTML;
-    const b=p.querySelector('.back').innerHTML;
-    return {f,b};
-  });
-  localStorage.setItem('flipbookData',JSON.stringify(data));
-}
-function loadContent(page){
-  const data=JSON.parse(localStorage.getItem('flipbookData')||'[]');
-  const i=pages.indexOf(page);
-  if(data[i]){
-    page.querySelector('.front').innerHTML=data[i].f;
-    page.querySelector('.back').innerHTML=data[i].b;
-  }
-}
-
-// Cập nhật z-index & flipped
-function updatePages(){
-  pages.forEach((p,i)=>{
-    if(i<currentPage){p.classList.add('flipped'); p.style.zIndex=i;}
-    else{p.classList.remove('flipped'); p.style.zIndex=pages.length-i;}
-  });
-  saveContent();
-}
-
-// Toolbar
-toolbar.querySelectorAll('button').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    const cmd=btn.dataset.cmd;
-    if(cmd==='createLink'){
-      const url=prompt("Nhập URL:");
-      if(url) document.execCommand(cmd,false,url);
-    } else if(cmd==='insertImage'){
-      const url=prompt("Nhập URL ảnh:");
-      if(url) document.execCommand(cmd,false,url);
-    } else document.execCommand(cmd,false,null);
-  });
-});
-document.getElementById('font-family').addEventListener('change',e=>document.execCommand('fontName',false,e.target.value));
-document.getElementById('font-size').addEventListener('change',e=>{
-  const size=e.target.value;
-  document.execCommand('fontSize',false,'7');
-  const sel=window.getSelection();
-  if(sel.rangeCount){
-    const node=sel.anchorNode.parentNode;
-    if(node.tagName==='FONT'){node.removeAttribute('size'); node.style.fontSize=size;}
-  }
-});
-document.getElementById('color').addEventListener('change',e=>document.execCommand('foreColor',false,e.target.value));
-
-
-
-// Toggle toolbar
-toggleToolbar.addEventListener('click',()=>toolbar.classList.toggle('show'));
-
-// Toggle music icon + audio
-musicToggle.addEventListener('click',()=>{
-  if(bgMusic.paused){bgMusic.play(); musicToggle.textContent='🔊';}
-  else{bgMusic.pause(); musicToggle.textContent='🔇';}
+prevBtn.addEventListener('click', () => {
+    if (currentPage > 0) currentPage--;
+    updatePages();
 });
 
-// Prev/Next
-prevBtn.addEventListener('click',()=>{if(currentPage>0) currentPage--; updatePages();});
-nextBtn.addEventListener('click',()=>{if(currentPage<pages.length-1) currentPage++; updatePages();});
+nextBtn.addEventListener('click', () => {
+    if (currentPage < pages.length - 1) currentPage++;
+    updatePages();
+});
 
-// Thêm trang
-addPageBtn.addEventListener('click',()=>createPage());
+addPageSidebarBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    addNewPage();
+});
 
-// Khởi tạo
-createCover("💌 NoteCloud - Lưu bút thanh xuân 💌");
-for(let i=0;i<5;i++) createPage();
-updatePages();
+function initBook() {
+    book.innerHTML = '';
+    pages = [];
+    currentPage = 0;
+
+    createPage(Layouts.COVER, false);
+    
+    createPage(Layouts.PAGE_1_LAYOUT, true);
+
+    createPage(Layouts.PAGE_2_LAYOUT, true);
+
+    createPage(Layouts.PAGE_BLANK, false);
+
+    updatePages();
+    
+    const startBtn = document.getElementById('start-btn');
+    if (startBtn) {
+        startBtn.addEventListener('click', () => {
+            currentPage = 1; 
+            updatePages();
+        });
+    }
+}
+
+toggleToolbarMenu.addEventListener('click', () => {
+    floatingMenu.classList.toggle('show');
+});
+
+addPagePanelBtn.addEventListener('click', addNewPage);
+
+floatingMenu.querySelectorAll('button[data-cmd]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        restoreSelection();
+        const cmd = btn.dataset.cmd;
+        if (cmd === 'createLink') {
+            const url = prompt("Nhập URL:");
+            if (url) document.execCommand(cmd, false, url);
+        } else if (cmd.startsWith('justify')) {
+            floatingMenu.querySelectorAll('.align-buttons .align-btn').forEach(b => b.classList.remove('active-align'));
+            btn.classList.add('active-align');
+            document.execCommand(cmd, false, null);
+        } else {
+            document.execCommand(cmd, false, null);
+        }
+    });
+});
+
+document.getElementById('font-family').addEventListener('change', e => {
+    restoreSelection();
+    document.execCommand('fontName', false, e.target.value);
+});
+
+document.getElementById('font-size').addEventListener('change', e => {
+    restoreSelection();
+    let sizeValue = '4';
+    switch(e.target.value) {
+        case '14px': sizeValue = '3'; break; 
+        case '18px': sizeValue = '5'; break; 
+        case '24px': sizeValue = '6'; break; 
+    }
+    document.execCommand('fontSize', false, sizeValue);
+});
+
+document.getElementById('color').addEventListener('change', e => {
+    restoreSelection();
+    document.execCommand('foreColor', false, e.target.value);
+});
+
+
+// --- Logic Thêm Ảnh MỚI ---
+insertImageBtn.addEventListener('click', () => {
+    imageUploadInput.click();
+});
+
+imageUploadInput.addEventListener('change', function(event) {
+    if (event.target.files && event.target.files[0]) {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            restoreSelection(); 
+            if (savedRange) {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.alt = 'Uploaded Image';
+                
+                // Chèn ảnh vào vị trí con trỏ
+                savedRange.deleteContents();
+                savedRange.insertNode(img);
+                
+                // Đặt lại con trỏ sau ảnh
+                savedRange.setEndAfter(img);
+                savedRange.collapse(false);
+                
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(savedRange);
+
+                // Thêm dòng mới sau ảnh để dễ soạn thảo tiếp
+                document.execCommand('insertHTML', false, '<br><br>');
+
+            } else {
+                alert('Vui lòng click vào vị trí bạn muốn chèn ảnh trước khi nhấn nút "Thêm ảnh".');
+            }
+        };
+
+        reader.readAsDataURL(file);
+    }
+    // Xóa giá trị input để có thể tải cùng 1 file ảnh nhiều lần
+    event.target.value = ''; 
+});
+
+initBook();
 </script>
 </body>
 </html>

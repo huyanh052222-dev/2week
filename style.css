@@ -1,30 +1,92 @@
 body{
   margin:0;
   font-family:'Nunito', sans-serif;
-  background:#f0f0f0;
+  background:#daddf4;
   display:flex;
   height:100vh;
   overflow:hidden;
 }
+:root{
+    --mint:#C8F7E0;
+    --purple:#E6D8FF;
+    --blue:#D7EAFE;
+    --peach:#FFE6CC;
+    --text:#222;
+    --muted:#6b6b6b;
+    --card-w:320px;
+    --card-h:320px;
+    --gap:20px;
+    --move-up:8px;
+    --transition-time:500ms;
+}
+/* Home-page */
 
 .container-sidebar{
-  width:200px;
-  background:#222;
-  color:white;
-  display:flex;
-  flex-direction:column;
-  padding:20px;
-  box-shadow:2px 0 10px rgba(0,0,0,0.2);
+    width:200px;
+    background:#222;
+    color:white;
+    display:flex;
+    flex-direction:column;
+    padding:20px;
+    box-shadow:2px 0 10px rgba(0,0,0,0.2);
 }
+/* .side-bar {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 0 20px;
+}
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 24px;
+    font-weight: 700;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    flex-wrap: wrap;
+}
+.eirlys-logo {
+    font-family: var(--handwriting-font);
+    font-size: 32px;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    color: var(--dark-purple-sidebar);
+    font-weight: 400;
+}
+.link-integrations {
+    width: 100%;
+    font-size: 14px;
+    font-weight: 400;
+    opacity: 0.7;
+    margin-top: 5px;
+    margin-left: 50px;
+} */
 
 .container-sidebar .side-bar a{
   color:#ddd;
   text-decoration:none;
   margin:5px 0;
   padding:10px;
-  display:block;
+  display:flex;
+  align-items: center;
+  gap: 10px;
   border-radius:6px;
   transition:0.3s;
+  img{
+    width: 20px;
+    height: 20px;
+  }
+  #icon{
+    width: 17px;
+    margin-right: 3px;
+  }
 }
 
 .container-sidebar .side-bar a.active-nav{
@@ -162,7 +224,7 @@ body{
   padding:10px;
   border-radius:10px 0 0 10px;
   display:flex;
-  flex-direction:column;
+  flex-direction:row;
   gap:10px;
   transition:right 0.4s;
   z-index:1500;
@@ -190,13 +252,13 @@ body{
 }
 
 .content{
-  width:100%;
-  height:100%;
-  outline:none;
-white-space:pre-wrap;
-  word-break:break-word;
-  font-family:'Nunito', sans-serif;
-  font-size:16px;
+    width:100%;
+    height:100%;
+    outline:none;
+    white-space:pre-wrap;
+    word-break:break-word;
+    font-family:'Nunito', sans-serif;
+    font-size:16px;
 }
 
 .content img{
@@ -204,8 +266,26 @@ white-space:pre-wrap;
   margin:5px 0;
 }
 
-/* Contact-container */
+/* Rate side */
+.container-wrap-rate{
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    flex: 1;
+    /* width: 100%; */
+    background-color: #daddf4;
+}
 
+/* Contact-container side */
+.container-wrap-contact{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* width: 100%; */
+    flex: 1;
+    height: 100vh;
+    background-color: #daddf4;
+}
 
 
 /* ressponsive */
