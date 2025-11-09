@@ -89,7 +89,7 @@ body{
 }
 
 .book-cover{
-  background:linear-gradient(135deg,#f09,#f0c);
+  background:linear-gradient(135deg,rgb(119, 0, 255),rgb(255, 145, 0));
   color:white;
   display:flex;
   align-items:center;
@@ -204,6 +204,11 @@ white-space:pre-wrap;
   margin:5px 0;
 }
 
+/* Contact-container */
+
+
+
+/* ressponsive */
 @media (max-width:1330px){
   .book{
     width:250px;
